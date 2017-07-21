@@ -1,0 +1,47 @@
+service: memory-less-leaderboard
+
+plugins:
+  - serverless-webpack
+custom:
+  webpackIncludeModules: true
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  environment:
+    DYNAMODB_LEADERBOARD_TABLE: "memoryless_leaderboard"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_LEADERBOARD_TABLE}"
+functions:
+  retrieveLeaderboard:
+    handler: handler.retrieveLeaderboard
+  updateLeaderboard:
+    handler: handler.updateLeaderboard
+  defaultMessage:
+    handler: handler.defaultMessage
+resources:
+  Resources:
+    MemoryLessLeaderboardDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMODB_LEADERBOARD_TABLE}

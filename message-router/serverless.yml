@@ -1,0 +1,25 @@
+service: memory-less-message-router
+
+plugins:
+  - serverless-webpack
+custom:
+  webpackIncludeModules: true
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - lambda:InvokeFunction
+          - lambda:InvokeAsync
+        Resource: "*"
+functions:
+  entry:
+    handler: handler.entry
+    events:
+      - http:
+          path: gateway
+          method: post
+          integration: lambda
+          cors: true
