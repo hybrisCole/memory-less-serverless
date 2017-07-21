@@ -31,7 +31,7 @@ export const retrieveLeaderboard = async (event, context, callback) => {
   _.each(leaderboardByTime, (scores, j) => {
     orderedLeaderBoard.push({
       size: j,
-      scores: _.chain(scores).orderBy('elapsedTime', 'asc').take(10).value(),
+      scores: _.chain(scores).orderBy(['percentageComplete', 'elapsedTime'], ['desc', 'asc']).take(10).value(),
     })
   });
   callback(null, {leaderboardData: orderedLeaderBoard});
@@ -43,8 +43,7 @@ export const updateLeaderboard = async (event, context, callback) => {
     const cleanObject = {...validObject, ...clean(validObject)};
     const scoreDate = (new Date()).getTime();
     const scoreId = uuidV1();
-    const psdasd
-    arams = {
+    const params = {
       TableName : process.env.DYNAMODB_LEADERBOARD_TABLE,
       Item      : {
         id : scoreId,
